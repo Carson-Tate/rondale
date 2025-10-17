@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>DVD Bouncer</title>
 <style>
-    /* Transparent background so canvas stays transparent where image has alpha */
     html, body {
         height: 100%;
         margin: 0;
@@ -19,7 +18,7 @@
         display: block;
         width: 100vw;
         height: 100vh;
-        background: transparent; /* preserve transparent areas */
+        background: transparent; 
     }
 
 
@@ -29,13 +28,7 @@
     <canvas id="stage"></canvas>
 
 <script>
-/*
-    DVD Bouncer
-    - Uses user's uploaded image as the logo.
-    - Maintains transparent background (canvas cleared each frame).
-    - Drag & drop or file selector supported.
-    - Save this file and open in a browser. Replace image via the UI.
-*/
+
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: true });
@@ -53,7 +46,7 @@ let sprite = {
     h: 64,
     dx: 2.3,
     dy: 1.9,
-    speed: 4, // constant speed value
+    speed: 10, // speed
     angle: 0,
     loaded: false
 };
@@ -76,14 +69,12 @@ function setLogoSrc(src) {
     logo.onload = () => {
         sprite.w = Math.max(32, logo.width);
         sprite.h = Math.max(32, logo.height);
-        // scale down if too large relative to viewport
         const maxDim = Math.min(W, H) * 0.25;
         if (sprite.w > maxDim || sprite.h > maxDim) {
             const s = maxDim / Math.max(sprite.w, sprite.h);
             sprite.w = Math.round(sprite.w * s);
             sprite.h = Math.round(sprite.h * s);
         }
-        // place sprite fully inside if needed
         sprite.x = Math.max(0, Math.min(sprite.x, W - sprite.w));
         sprite.y = Math.max(0, Math.min(sprite.y, H - sprite.h));
         sprite.loaded = true;
@@ -92,10 +83,8 @@ function setLogoSrc(src) {
 }
 
 function reset() {
-    // randomize starting pos and velocity with more diagonal movement
     sprite.x = Math.random() * (W - sprite.w || 1);
     sprite.y = Math.random() * (H - sprite.h || 1);
-    // Generate angle that avoids near-horizontal and near-vertical directions
     let angle;
     do {
         angle = Math.random() * Math.PI * 2;
@@ -115,14 +104,11 @@ function update() {
     if (sprite.y <= 0) { sprite.y = 0; sprite.dy = Math.abs(sprite.dy); bounced = true; }
     if (sprite.y + sprite.h >= H) { sprite.y = H - sprite.h; sprite.dy = -Math.abs(sprite.dy); bounced = true; }
 
-    // maintain diagonal movement after bounces with constant speed
     if (bounced) {
         let ang = Math.atan2(sprite.dy, sprite.dx);
         
-        // Add a small random angle adjustment to prevent repetitive patterns
         ang += (Math.random() - 0.5) * Math.PI / 6; // up to ±30 degrees
         
-        // Ensure the angle stays diagonal enough
         const cosAng = Math.cos(ang);
         const sinAng = Math.sin(ang);
         if (Math.abs(cosAng) < 0.3) {
@@ -132,14 +118,12 @@ function update() {
             ang += (sinAng > 0 ? 1 : -1) * Math.PI / 6;
         }
         
-        // Use the constant speed value
         sprite.dx = Math.cos(ang) * sprite.speed;
         sprite.dy = Math.sin(ang) * sprite.speed;
     }
 }
 
 function draw() {
-    // clear to transparent
     ctx.clearRect(0, 0, W, H);
 
     if (sprite.loaded) {
@@ -153,10 +137,8 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// Auto reset when image loads
 logo.addEventListener('load', reset);
 
-// init
 resize();
 setLogoSrc('rondale.png');
 loop();
@@ -164,3 +146,4 @@ loop();
 </body>
 
 </html>
+
